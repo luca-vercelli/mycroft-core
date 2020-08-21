@@ -15,11 +15,12 @@
 import json
 import time
 import os
+import tempfile
 
 from mycroft.filesystem import FileSystemAccess
 from mycroft.util.log import LOG
 from mycroft.util.combo_lock import ComboLock
-identity_lock = ComboLock('/tmp/identity-lock')
+identity_lock = ComboLock(os.path.join(tempfile.gettempdir(), 'identity-lock'))
 
 
 class DeviceIdentity:

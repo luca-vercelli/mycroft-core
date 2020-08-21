@@ -88,7 +88,7 @@ def handle_gui_ready(msg):
     port = msg.data.get("port")
     if port:
         log_message("Connecting CLI GUI on "+str(port))
-        ws = websocket.WebSocketApp("ws://0.0.0.0:" + str(port) + "/gui",
+        ws = websocket.WebSocketApp("ws://localhost:" + str(port) + "/gui",
                                     on_message=on_gui_message,
                                     on_error=on_gui_error,
                                     on_close=on_gui_close)
