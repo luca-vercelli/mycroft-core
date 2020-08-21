@@ -13,9 +13,19 @@
 # limitations under the License.
 #
 from unittest import TestCase, mock
-
+from mycroft.configuration import Configuration
 from mycroft.messagebus import Message
-from mycroft.skills.intent_service import ContextManager, IntentService
+from mycroft.skills.intent_service import (ContextManager, IntentService,
+                                           _get_message_lang)
+
+from test.util import base_config
+
+# Setup configurations to use with default language tests
+BASE_CONF = base_config()
+BASE_CONF['lang'] = 'it-it'
+
+NO_LANG_CONF = base_config()
+NO_LANG_CONF.pop('lang')
 
 
 class MockEmitter(object):
@@ -112,6 +122,45 @@ class ConversationTest(TestCase):
         # Check that a skill responded that it could handle the message
         self.assertTrue(result)
 
+    def test_converse_error(self):
+        """Check that all skill IDs in the active_skills list are called.
+        even if there's an error.
+        """
+        def response(message, return_msg_type):
+            c64 = Message(return_msg_type, {'skill_id': 'c64_skill',
+                                            'result': False})
+            amiga = Message(return_msg_type,
+                            {'skill_id': 'amiga_skill',
+                             'error': 'skill id does not exist'})
+            atari = Message(return_msg_type, {'skill_id': 'atari_skill',
+                                              'result': False})
+            msgs = {'c64_skill': c64,
+                    'atari_skill': atari,
+                    'amiga_skill': amiga}
+
+            return msgs[message.data['skill_id']]
+
+        self.intent_service.add_active_skill('amiga_skill')
+        self.intent_service.bus.wait_for_response.side_effect = response
+
+        hello = ['hello old friend']
+        utterance_msg = Message('recognizer_loop:utterance',
+                                data={'lang': 'en-US',
+                                      'utterances': hello})
+        result = self.intent_service._converse(hello, 'en-US', utterance_msg)
+
+        # Check that the active skill list was updated to set the responding
+        # Skill first.
+
+        # Check that a skill responded that it couldn't handle the message
+        self.assertFalse(result)
+
+        # Check that each skill in the list of active skills were called
+        call_args = self.intent_service.bus.wait_for_response.call_args_list
+        sent_skill_ids = [call[0][0].data['skill_id'] for call in call_args]
+        self.assertEqual(sent_skill_ids,
+                         ['amiga_skill', 'c64_skill', 'atari_skill'])
+
     def test_reset_converse(self):
         """Check that a blank stt sends the reset signal to the skills."""
         def response(message, return_msg_type):
@@ -137,3 +186,25 @@ class ConversationTest(TestCase):
         self.assertTrue(check_converse_request(atari_message, 'atari_skill'))
         first_active_skill = self.intent_service.active_skills[0][0]
         self.assertEqual(first_active_skill, 'atari_skill')
+
+
+class TestLanguageExtraction(TestCase):
+    @mock.patch.dict(Configuration._Configuration__config, BASE_CONF)
+    def test_no_lang_in_message(self):
+        """No lang in message should result in lang from config."""
+        msg = Message('test msg', data={})
+        self.assertEqual(_get_message_lang(msg), 'it-it')
+
+    @mock.patch.dict(Configuration._Configuration__config, NO_LANG_CONF)
+    def test_no_lang_at_all(self):
+        """Not in message and not in config, should result in en-us."""
+        msg = Message('test msg', data={})
+        self.assertEqual(_get_message_lang(msg), 'en-us')
+
+    @mock.patch.dict(Configuration._Configuration__config, BASE_CONF)
+    def test_lang_exists(self):
+        """Message has a lang code in data, it should be used."""
+        msg = Message('test msg', data={'lang': 'de-de'})
+        self.assertEqual(_get_message_lang(msg), 'de-de')
+        msg = Message('test msg', data={'lang': 'sv-se'})
+        self.assertEqual(_get_message_lang(msg), 'sv-se')
