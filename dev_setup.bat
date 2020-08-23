@@ -26,6 +26,9 @@ pipwin install fann2==1.1.2
 REM fann2 version 1.0.x not available
 pipwin install PyAudio==0.2.11
 
+REM if pipwin does not work, please download from https://www.lfd.uci.edu/~gohlke/pythonlibs/
+
+
 pipwin install curses
 
 
