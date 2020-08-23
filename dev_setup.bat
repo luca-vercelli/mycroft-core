@@ -31,9 +31,6 @@ pipwin install curses
 
 REM == ALSA does not exist in Windows =========================
 
-move requirements.txt requirements.txt.bak
-copy requirements-win.txt requirements.txt
-
 REM == Go on with build =======================================
 
 py setup.py build
