@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from signal import getsignal, signal, SIGKILL, SIGINT, SIGTERM, \
-    SIG_DFL, default_int_handler, SIG_IGN  # signals
+from signal import getsignal, signal, SIGINT, SIGTERM, \
+        SIG_DFL, default_int_handler, SIG_IGN # signals
+try:
+    from signal import SIGKILL # signals
+except ImportError:
+    # probably we are in Windows
+    from signal import CTRL_C_EVENT as SIGKILL
 
 import os  # Operating System functions
 
