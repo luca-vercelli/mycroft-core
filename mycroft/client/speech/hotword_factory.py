@@ -219,7 +219,11 @@ class PreciseHotword(HotWordEngine):
         return join(self.folder, 'precise-engine', 'precise-engine')
 
     def install_exe(self, url: str) -> str:
-        url = url.format(arch=platform.machine())
+        platform_arch = platform.machine()
+        if platform_arch == 'AMD64':
+            # this happens under Windows
+            platform_arch = 'x86_64'
+        url = url.format(arch=platform_arch)
         if not url.endswith('.tar.gz'):
             url = requests.get(url).text.strip()
         if install_package(
