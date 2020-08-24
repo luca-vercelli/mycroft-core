@@ -512,7 +512,7 @@ def init_screen():
     if curses.has_colors():
         curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
         bg = curses.COLOR_BLACK
-        for i in range(1, curses.COLORS):
+        for i in range(1, curses.COLORS-1):
             curses.init_pair(i + 1, i, bg)
 
         # Colors (on black backgound):
