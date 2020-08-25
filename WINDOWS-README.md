@@ -3,12 +3,11 @@
 ## Install and run
 
 1. Install Python 3.x for Windows
-2. Run dev_setup.bat
-
+2. Run `dev_setup.bat`
 3. The latter should install some Windows-specific Python modules: `fann2`, `PyAudio`, `curses`.
 If not, download and install required binaries from https://www.lfd.uci.edu/~gohlke/pythonlibs/
 
-4. If you want `mimic`, you must build mimic by yourself.
+4. If you want `mimic`, you must build it by yourself.
 5. Run with `start-mycroft.bat`. Currently, this run the CLI.
 
 ## Main problems
