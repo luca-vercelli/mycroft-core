@@ -126,7 +126,10 @@ class PocketsphinxHotWord(HotWordEngine):
         config.set_float('-kws_threshold', float(self.threshold))
         config.set_float('-samprate', self.sample_rate)
         config.set_int('-nfft', 2048)
-        config.set_string('-logfn', '/dev/null')
+        if os.name == 'nt':
+            config.set_string('-logfn', 'NUL')
+        else:
+            config.set_string('-logfn', '/dev/null')
         return config
 
     def transcribe(self, byte_data, metrics=None):
