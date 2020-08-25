@@ -222,11 +222,9 @@ class PreciseHotword(HotWordEngine):
         return join(self.folder, 'precise-engine', 'precise-engine')
 
     def install_exe(self, url: str) -> str:
-        platform_arch = platform.machine()
-        if platform_arch == 'AMD64':
-            # this happens under Windows
-            platform_arch = 'x86_64'
-        url = url.format(arch=platform_arch)
+        if os.name == 'nt':
+            raise ValueError('Cannot install Precise in Windows')
+        url = url.format(arch=platform.machine())
         if not url.endswith('.tar.gz'):
             url = requests.get(url).text.strip()
         if install_package(
