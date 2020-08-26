@@ -84,8 +84,11 @@ def _play_cmd(cmd, uri, config, environment):
                      pulseaudio settings.
     """
     environment = environment or _get_pulse_environment(config)
-    cmd_elements = str(cmd).split(" ")
+    # Splitting by " " is quite naive, path could be be "Windows Media Player",
+    # that's why we join the path later.
+    cmd_elements = str(cmd).split(" ")              
     cmdline = [e if e != '%1' else uri for e in cmd_elements]
+    cmdline = "".join(cmdline)
     return subprocess.Popen(cmdline, env=environment)
 
 
